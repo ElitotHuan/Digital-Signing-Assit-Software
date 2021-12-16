@@ -13,6 +13,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 
 import Object.DonHang;
+import java.io.ObjectOutputStream;
 
 public class Sign {
 
@@ -22,20 +23,20 @@ public class Sign {
         this.keyGenerate = new KeyGenerate();
     }
 
-    public String hashFile(String file) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("SHA1");
-        File soucre = new File(file);
-        FileInputStream fis = new FileInputStream(soucre);
-        byte[] buffer = new byte[(int) soucre.length()];
-        int readBytes = 0;
-        while ((readBytes = fis.read(buffer)) != -1) {
-            md.update(buffer, 0, readBytes);
-        }
-
-        byte[] bytesData = md.digest();
-        return convertByteToHex(bytesData);
-    }
-
+//    public String hashFile(String file) throws NoSuchAlgorithmException, IOException {
+//        MessageDigest md = MessageDigest.getInstance("SHA1");
+//        File soucre = new File(file);
+//        FileInputStream fis = new FileInputStream(soucre);
+//        byte[] buffer = new byte[(int) soucre.length()];
+//        int readBytes = 0;
+//        while ((readBytes = fis.read(buffer)) != -1) {
+//            md.update(buffer, 0, readBytes);
+//        }
+//
+//        byte[] bytesData = md.digest();
+//        return convertByteToHex(bytesData);
+//    }
+    
     public String convertByteToHex(byte[] data) {
         StringBuilder sb = new StringBuilder();
 
@@ -44,6 +45,23 @@ public class Sign {
         }
 
         return sb.toString();
+    }
+
+    public String checksum(DonHang obj) throws IOException, NoSuchAlgorithmException {
+        if (obj == null) {
+            return null;
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(obj);
+        }
+
+        MessageDigest m = MessageDigest.getInstance("MD5");
+        m.update(bos.toByteArray());
+
+        byte[] hashing = m.digest();
+        return convertByteToHex(hashing);
     }
 
     public byte[] convertHexToByte(String hex) {
@@ -56,29 +74,21 @@ public class Sign {
         return val;
     }
 
-    public byte[] intToByteArray(int i) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(bos);
-        dos.writeInt(i);
-        dos.flush();
-        return bos.toByteArray();
-    }
-
-    public String signing(int hashcode) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+    public String signing(String input) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
             IOException, NoSuchProviderException {
         Signature signature = Signature.getInstance("DSA");
         signature.initSign(keyGenerate.getPrivateKey());
-        signature.update(intToByteArray(hashcode));
+        signature.update(input.getBytes());
         byte[] bSignature = signature.sign();
         System.out.println("Đã ký thành công");
         return convertByteToHex(bSignature);
     }
 
-    public boolean verifying(String sigture, int hashCode) throws NoSuchAlgorithmException, InvalidKeyException,
-            IOException, SignatureException, NoSuchProviderException {
-        Signature signature = Signature.getInstance("SHA1withDSA");
+    public boolean verifying(String sigture, String input) throws NoSuchAlgorithmException,
+            InvalidKeyException,IOException, SignatureException, NoSuchProviderException {
+        Signature signature = Signature.getInstance("DSA");
         signature.initVerify(keyGenerate.getPublicKey());
-        byte[] messageBytes = intToByteArray(hashCode);
+        byte[] messageBytes = input.getBytes();
         signature.update(messageBytes);
         byte[] recivedSignature = convertHexToByte(sigture);
         boolean isCorrect = signature.verify(recivedSignature);
@@ -89,8 +99,10 @@ public class Sign {
             IOException, NoSuchProviderException {
         Sign s = new Sign();
         DonHang dh = new DonHang("232", "sfs", 3);
-        String sig = s.signing(dh.hashCode());
-        System.out.println(s.verifying(sig, dh.hashCode()));
+        String sig = s.signing(s.checksum(dh));
+        System.out.println(s.checksum(dh));
+        System.out.println(sig);
+        System.out.println(s.verifying(sig, s.checksum(dh)));
 
     }
 
