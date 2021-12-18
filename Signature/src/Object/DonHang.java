@@ -1,6 +1,8 @@
 package Object;
 
-public class DonHang {
+import java.io.Serializable;
+
+public class DonHang implements Serializable {
 	private String id;
 	private String name;
 	private int quantity;

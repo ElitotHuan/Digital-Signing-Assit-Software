@@ -5,23 +5,30 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.Base64;
 
 import Object.DonHang;
-import java.io.ObjectOutputStream;
 
 public class Sign {
 
-    private KeyGenerate keyGenerate;
+	public Sign() throws NoSuchAlgorithmException, NoSuchProviderException {
 
-    public Sign() throws NoSuchAlgorithmException, NoSuchProviderException {
-        this.keyGenerate = new KeyGenerate();
-    }
+	}
 
 //    public String hashFile(String file) throws NoSuchAlgorithmException, IOException {
 //        MessageDigest md = MessageDigest.getInstance("SHA1");
@@ -36,74 +43,76 @@ public class Sign {
 //        byte[] bytesData = md.digest();
 //        return convertByteToHex(bytesData);
 //    }
-    
-    public String convertByteToHex(byte[] data) {
-        StringBuilder sb = new StringBuilder();
 
-        for (byte datum : data) {
-            sb.append(Integer.toString((datum & 0xff) + 0x100, 16).substring(1));
-        }
+	public String convertByteToHex(byte[] data) {
+		StringBuilder sb = new StringBuilder();
 
-        return sb.toString();
-    }
+		for (byte datum : data) {
+			sb.append(Integer.toString((datum & 0xff) + 0x100, 16).substring(1));
+		}
 
-    public String checksum(DonHang obj) throws IOException, NoSuchAlgorithmException {
-        if (obj == null) {
-            return null;
-        }
+		return sb.toString();
+	}
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-            oos.writeObject(obj);
-        }
+//    public String checksum(DonHang obj) throws IOException, NoSuchAlgorithmException {
+//        if (obj == null) {
+//            return null;
+//        }
+//
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+//            oos.writeObject(obj);
+//        }
+//
+//        MessageDigest m = MessageDigest.getInstance("SHA1");
+//        m.update(bos.toByteArray());
+//
+//        byte[] hashing = m.digest();
+//        return convertByteToHex(hashing);
+//    }
 
-        MessageDigest m = MessageDigest.getInstance("MD5");
-        m.update(bos.toByteArray());
+	public byte[] convertHexToByte(String hex) {
+		byte[] val = new byte[hex.length() / 2];
+		for (int i = 0; i < val.length; i++) {
+			int index = i * 2;
+			int j = Integer.parseInt(hex.substring(index, index + 2), 16);
+			val[i] = (byte) j;
+		}
+		return val;
+	}
 
-        byte[] hashing = m.digest();
-        return convertByteToHex(hashing);
-    }
+	public byte[] base64Decode(String s) {
+		return Base64.getDecoder().decode(s);
+	}
 
-    public byte[] convertHexToByte(String hex) {
-        byte[] val = new byte[hex.length() / 2];
-        for (int i = 0; i < val.length; i++) {
-            int index = i * 2;
-            int j = Integer.parseInt(hex.substring(index, index + 2), 16);
-            val[i] = (byte) j;
-        }
-        return val;
-    }
+	public PrivateKey loadPrivateKey(String key64) throws GeneralSecurityException {
+		byte[] clear = base64Decode(key64);
+		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
+		KeyFactory fact = KeyFactory.getInstance("DSA");
+		PrivateKey priv = fact.generatePrivate(keySpec);
+		Arrays.fill(clear, (byte) 0);
+		return priv;
+	}
 
-    public String signing(String input) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
-            IOException, NoSuchProviderException {
-        Signature signature = Signature.getInstance("DSA");
-        signature.initSign(keyGenerate.getPrivateKey());
-        signature.update(input.getBytes());
-        byte[] bSignature = signature.sign();
-        System.out.println("Đã ký thành công");
-        return convertByteToHex(bSignature);
-    }
+	public String signing(String input, String privatekey) throws IOException, GeneralSecurityException {
+		Signature signature = Signature.getInstance("DSA");
+		signature.initSign(loadPrivateKey(privatekey));
+		signature.update(input.getBytes());
+		byte[] bSignature = signature.sign();
+		System.out.println("Đã ký thành công");
+		return convertByteToHex(bSignature);
+	}
 
-    public boolean verifying(String sigture, String input) throws NoSuchAlgorithmException,
-            InvalidKeyException,IOException, SignatureException, NoSuchProviderException {
-        Signature signature = Signature.getInstance("DSA");
-        signature.initVerify(keyGenerate.getPublicKey());
-        byte[] messageBytes = input.getBytes();
-        signature.update(messageBytes);
-        byte[] recivedSignature = convertHexToByte(sigture);
-        boolean isCorrect = signature.verify(recivedSignature);
-        return isCorrect;
-    }
-
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
-            IOException, NoSuchProviderException {
-        Sign s = new Sign();
-        DonHang dh = new DonHang("232", "sfs", 3);
-        String sig = s.signing(s.checksum(dh));
-        System.out.println(s.checksum(dh));
-        System.out.println(sig);
-        System.out.println(s.verifying(sig, s.checksum(dh)));
-
-    }
+//    public boolean verifying(String sigture, String input , PublicKey pk) throws NoSuchAlgorithmException,
+//            InvalidKeyException,IOException, SignatureException, NoSuchProviderException {
+//        Signature signature = Signature.getInstance("DSA");
+//        signature.initVerify(pk);
+//        byte[] messageBytes = input.getBytes();
+//        signature.update(messageBytes);
+//        byte[] recivedSignature = convertHexToByte(sigture);
+//        boolean isCorrect = signature.verify(recivedSignature);
+//        return isCorrect;
+//    }
+	
 
 }
