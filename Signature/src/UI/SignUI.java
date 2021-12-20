@@ -15,6 +15,7 @@ public class SignUI extends JFrame {
 	private Sign s;
 	private JTextField txtHash;
 	private JTextArea signa, privateKey;
+	private JScrollPane pkPane;
 
 	public SignUI() {
 		EventQueue.invokeLater(new Runnable() {
@@ -95,10 +96,10 @@ public class SignUI extends JFrame {
 			gbc.gridx++;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.anchor = GridBagConstraints.WEST;
-			privateKey = new JTextArea(20, 10);
+			privateKey = new JTextArea(10, 10);
 			privateKey.setLineWrap(true);
 			privateKey.setWrapStyleWord(true);
-			add(privateKey, gbc);
+			add(pkPane = new JScrollPane(privateKey), gbc);
 
 			gbc.gridy += 1;
 			gbc.gridx = 1;
@@ -114,7 +115,7 @@ public class SignUI extends JFrame {
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.anchor = GridBagConstraints.WEST;
 			gbc.gridx++;
-			signa = new JTextArea(20, 10);
+			signa = new JTextArea(10, 10);
 			signa.setLineWrap(true);
 			signa.setWrapStyleWord(true);
 			add(signa, gbc);
@@ -133,7 +134,8 @@ public class SignUI extends JFrame {
 				} else {
 					try {
 						s = new Sign();
-						signa.setText(s.signing(txtHash.getText(), privateKey.getText()));
+						String signature = s.signing(txtHash.getText(), privateKey.getText());
+						signa.setText(signature);
 						JOptionPane.showMessageDialog(null, "Bạn đã ký Thành công", "Thông báo",
 								JOptionPane.INFORMATION_MESSAGE);
 					} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException

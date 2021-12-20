@@ -37,45 +37,33 @@ public class Sign {
 		return sb.toString();
 	}
 
-//    public String checksum(DonHang obj) throws IOException, NoSuchAlgorithmException {
-//        if (obj == null) {
-//            return null;
-//        }
-//
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-//            oos.writeObject(obj);
-//        }
-//
-//        MessageDigest m = MessageDigest.getInstance("SHA1");
-//        m.update(bos.toByteArray());
-//
-//        byte[] hashing = m.digest();
-//        return convertByteToHex(hashing);
-//    }
-
-	public byte[] convertHexToByte(String hex) {
-		byte[] val = new byte[hex.length() / 2];
-		for (int i = 0; i < val.length; i++) {
-			int index = i * 2;
-			int j = Integer.parseInt(hex.substring(index, index + 2), 16);
-			val[i] = (byte) j;
-		}
-		return val;
-	}
-
-	public byte[] base64Decode(String s) {
-		return Base64.getDecoder().decode(s);
-	}
+//	public byte[] convertHexToByte(String hex) {
+//		byte[] val = new byte[hex.length() / 2];
+//		for (int i = 0; i < val.length; i++) {
+//			int index = i * 2;
+//			int j = Integer.parseInt(hex.substring(index, index + 2), 16);
+//			val[i] = (byte) j;
+//		}
+//		return val;
+//	}
 
 	public PrivateKey loadPrivateKey(String key64) throws GeneralSecurityException {
-		byte[] clear = base64Decode(key64);
+		byte[] clear = Base64.getDecoder().decode(key64);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
 		KeyFactory fact = KeyFactory.getInstance("DSA");
 		PrivateKey priv = fact.generatePrivate(keySpec);
 		Arrays.fill(clear, (byte) 0);
 		return priv;
 	}
+
+//	public PublicKey loadPublicKey(String key64) throws GeneralSecurityException {
+//		byte[] clear = Base64.getDecoder().decode(key64);
+//		X509EncodedKeySpec  keySpec = new X509EncodedKeySpec(clear);
+//		KeyFactory fact = KeyFactory.getInstance("DSA");
+//		PublicKey priv = fact.generatePublic(keySpec);
+//		Arrays.fill(clear, (byte) 0);
+//		return priv;
+//	}
 
 	public String signing(String input, String privatekey) throws IOException, GeneralSecurityException {
 		Signature signature = Signature.getInstance("DSA");
@@ -86,16 +74,30 @@ public class Sign {
 		return convertByteToHex(bSignature);
 	}
 
-//    public boolean verifying(String sigture, String input , PublicKey pk) throws NoSuchAlgorithmException,
-//            InvalidKeyException,IOException, SignatureException, NoSuchProviderException {
-//        Signature signature = Signature.getInstance("DSA");
-//        signature.initVerify(pk);
-//        byte[] messageBytes = input.getBytes();
-//        signature.update(messageBytes);
-//        byte[] recivedSignature = convertHexToByte(sigture);
-//        boolean isCorrect = signature.verify(recivedSignature);
-//        return isCorrect;
-//    }
+//	public boolean verifying(String sigture, String input, String pk) throws IOException, GeneralSecurityException {
+//		Signature signature = Signature.getInstance("DSA");
+//		signature.initVerify(loadPublicKey(pk));
+//		byte[] messageBytes = input.getBytes();
+//		signature.update(messageBytes);
+//		byte[] recivedSignature = convertHexToByte(sigture);
+//		boolean isCorrect = signature.verify(recivedSignature);
+//		return isCorrect;
+//	}
+
+//	public static void main(String[] args) throws IOException, GeneralSecurityException {
+//		Sign s = new Sign();
+//		DonHang dh = new DonHang("sfs", "A", 3);
+//		System.out.println(s.checksum(dh));
+//		String signa = s.signing(s.checksum(dh),
+//				"MIIBTAIBADCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoEFwIVAIHECgmxQH+xobiJxmLmEiWzzqV1");
+//		System.out.println(signa);
+//		System.err.println(s.verifying(signa, s.checksum(dh), "MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoDgYQAAoGAJsNAGi+YsP0CH2Xgb9r+7ao+Gn1S/YWI/TZFRf6y8BqBmkAqR5gjYrmttk6vSxv1zJW0P1I/cpGst2ZGiUY9lYeBEvqFPxDZ7/wG4AEQfPW6LXs4W4xYuih5pWympEjlN4vZKoU7DE/3VcvrOxCC2OmgFMoyjDmH6NoPbmy+fi8="));
+//	}
 	
+//	public static void main(String[] args) throws IOException, GeneralSecurityException {
+//		Sign s = new Sign();
+//		PrivateKey pk = s.loadPrivateKey("MIIBSwIBADCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoEFgIUBYjYHEtXfaSsRBoZfmc8hOGwatw=");
+//		System.out.println(s.verifying("302c02143ed0e01b3e1c12c3db341bf354b8073f81f8bfb402144eb0b3d26cb4658037d05cb89062aad35ec9925d","d4w", "MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoDgYQAAoGAN/JrWZOx2jPf97BL5Cs2jL5NiVaiSJijv3aiGnHCRQzV04+xzJzjwnVxRh6ceGgQqN3kX0/aCJr3Sj2DdOu1GTIpIQoBU6c1GpJohmy0NFvfcrSsBf8VYqIum5VGHUe0sMIgYX86wZ4NVlnbtg7uYb17jTVGxX1t8MxbV8MAOP8="));
+//	}
 
 }
