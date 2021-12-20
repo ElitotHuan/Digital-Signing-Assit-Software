@@ -26,23 +26,6 @@ import Object.DonHang;
 
 public class Sign {
 
-	public Sign() throws NoSuchAlgorithmException, NoSuchProviderException {
-
-	}
-
-//    public String hashFile(String file) throws NoSuchAlgorithmException, IOException {
-//        MessageDigest md = MessageDigest.getInstance("SHA1");
-//        File soucre = new File(file);
-//        FileInputStream fis = new FileInputStream(soucre);
-//        byte[] buffer = new byte[(int) soucre.length()];
-//        int readBytes = 0;
-//        while ((readBytes = fis.read(buffer)) != -1) {
-//            md.update(buffer, 0, readBytes);
-//        }
-//
-//        byte[] bytesData = md.digest();
-//        return convertByteToHex(bytesData);
-//    }
 
 	public String convertByteToHex(byte[] data) {
 		StringBuilder sb = new StringBuilder();
