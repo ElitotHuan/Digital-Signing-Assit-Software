@@ -16,6 +16,8 @@ public class SignUI extends JFrame {
 	private JTextField txtHash;
 	private JTextArea signa, privateKey;
 	private JScrollPane pkPane;
+	private int top = 3, left = 3, bottom = 3, right = 3;
+	private Insets i = new Insets(top, left, bottom, right);
 
 	public SignUI() {
 		EventQueue.invokeLater(new Runnable() {
@@ -23,22 +25,22 @@ public class SignUI extends JFrame {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-//				try {
-//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//					UIManager.put("Label.font", UIManager.getFont("Label.font").deriveFont(Font.BOLD, 14f));
-//				} catch (UnsupportedLookAndFeelException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (ClassNotFoundException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (InstantiationException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (IllegalAccessException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.put("Label.font", UIManager.getFont("Label.font").deriveFont(Font.BOLD, 14f));
+				} catch (UnsupportedLookAndFeelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 				setTitle("Ký");
 				setLayout(new BorderLayout());
@@ -56,12 +58,11 @@ public class SignUI extends JFrame {
 	public class MainFrame extends JPanel {
 
 		public MainFrame() {
-			setBorder(new EmptyBorder(8, 8, 8, 8));
+			setBorder(new EmptyBorder(10, 10, 10, 10));
 			setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.gridx = 0;
 			gbc.gridy = 0;
-			gbc.fill = GridBagConstraints.BOTH;
 			gbc.weightx = 1;
 
 			Content content = new Content();
@@ -76,13 +77,17 @@ public class SignUI extends JFrame {
 
 			setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
+			
+			gbc.insets = i;
+			gbc.weightx=0.5;
+			gbc.weighty=0.5;
+		        
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			gbc.anchor = GridBagConstraints.EAST;
 			add(new JLabel("Nhập mã hash: "), gbc);
 
 			gbc.gridx++;
-			gbc.weightx = 0.5;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.anchor = GridBagConstraints.WEST;
 			txtHash = new JTextField(40);
@@ -99,7 +104,8 @@ public class SignUI extends JFrame {
 			privateKey = new JTextArea(10, 10);
 			privateKey.setLineWrap(true);
 			privateKey.setWrapStyleWord(true);
-			add(pkPane = new JScrollPane(privateKey), gbc);
+			pkPane = new JScrollPane(privateKey);
+			add(pkPane, gbc);
 
 			gbc.gridy += 1;
 			gbc.gridx = 1;
@@ -118,8 +124,8 @@ public class SignUI extends JFrame {
 			signa = new JTextArea(10, 10);
 			signa.setLineWrap(true);
 			signa.setWrapStyleWord(true);
-			add(signa, gbc);
-
+			pkPane = new JScrollPane(signa);
+			add(pkPane, gbc);
 		}
 
 		@Override
