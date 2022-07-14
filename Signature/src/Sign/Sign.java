@@ -14,15 +14,12 @@ public class Sign {
 
 	public String convertByteToHex(byte[] data) {
 		StringBuilder sb = new StringBuilder();
-
 		for (byte datum : data) {
 			sb.append(Integer.toString((datum & 0xff) + 0x100, 16).substring(1));
 		}
-
 		return sb.toString();
 	}
-	
-	
+
 	public PrivateKey loadPrivateKey(String key64) throws GeneralSecurityException, UnsupportedEncodingException {
 		byte[] clear = Base64.getDecoder().decode((key64.getBytes("UTF-8")));
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);

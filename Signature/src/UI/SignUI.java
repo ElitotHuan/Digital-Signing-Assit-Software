@@ -58,7 +58,7 @@ public class SignUI extends JFrame {
 	public class MainFrame extends JPanel {
 
 		public MainFrame() {
-			setBorder(new EmptyBorder(10, 10, 10, 10));
+			setBorder(new EmptyBorder(8, 8, 8, 8));
 			setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.gridx = 0;
@@ -77,11 +77,11 @@ public class SignUI extends JFrame {
 
 			setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
-			
+
 			gbc.insets = i;
-			gbc.weightx=0.5;
-			gbc.weighty=0.5;
-		        
+			gbc.weightx = 0.5;
+			gbc.weighty = 0.5;
+
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			gbc.anchor = GridBagConstraints.EAST;
