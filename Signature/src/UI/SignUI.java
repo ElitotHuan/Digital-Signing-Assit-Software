@@ -6,9 +6,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+
 import javax.swing.*;
+
 import Sign.Sign;
+
 import javax.swing.border.EmptyBorder;
+
+import com.formdev.flatlaf.FlatIntelliJLaf;
 
 public class SignUI extends JFrame {
 
@@ -26,18 +31,9 @@ public class SignUI extends JFrame {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					UIManager.put("Label.font", UIManager.getFont("Label.font").deriveFont(Font.BOLD, 14f));
+					UIManager.setLookAndFeel(new FlatIntelliJLaf());
+					UIManager.put("Label.font", UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 16));
 				} catch (UnsupportedLookAndFeelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -74,7 +70,8 @@ public class SignUI extends JFrame {
 	public class Content extends JPanel implements ActionListener {
 
 		public Content() {
-
+			Dimension dmButton = new Dimension(30,40);
+			Dimension dmLabel = new Dimension(130,40);
 			setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
 
@@ -85,18 +82,23 @@ public class SignUI extends JFrame {
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			gbc.anchor = GridBagConstraints.EAST;
-			add(new JLabel("Nhập mã hash: "), gbc);
+			JLabel lbHash = new JLabel("Nhập mã hash: ");
+		lbHash.setPreferredSize(dmLabel);
+			add(lbHash, gbc);
 
 			gbc.gridx++;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.anchor = GridBagConstraints.WEST;
 			txtHash = new JTextField(40);
+			txtHash.setPreferredSize(dmButton);
 			add(txtHash, gbc);
 
 			gbc.gridx = 0;
 			gbc.gridy += 1;
 			gbc.anchor = GridBagConstraints.EAST;
-			add(new JLabel("Nhập khóa riêng: "), gbc);
+			JLabel lbKey = new JLabel("Nhập khóa riêng: ");
+			lbKey.setPreferredSize(dmLabel);
+			add(lbKey, gbc);
 
 			gbc.gridx++;
 			gbc.fill = GridBagConstraints.BOTH;
@@ -110,13 +112,17 @@ public class SignUI extends JFrame {
 			gbc.gridy += 1;
 			gbc.gridx = 1;
 			JButton buttonSign = new JButton("Ký");
+			buttonSign.setFont(new Font("", Font.BOLD, 14));
+			buttonSign.setPreferredSize(dmButton);
 			add(buttonSign, gbc);
 			buttonSign.addActionListener(this);
 
 			gbc.gridy++;
 			gbc.gridx = 0;
 			gbc.anchor = GridBagConstraints.EAST;
-			add(new JLabel("Chữ ký: "), gbc);
+			JLabel lbSign = new JLabel("Chữ ký: ");
+			lbSign.setPreferredSize(dmLabel);
+			add(lbSign, gbc);
 
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.anchor = GridBagConstraints.WEST;
@@ -144,16 +150,10 @@ public class SignUI extends JFrame {
 						signa.setText(signature);
 						JOptionPane.showMessageDialog(null, "Bạn đã ký Thành công", "Thông báo",
 								JOptionPane.INFORMATION_MESSAGE);
-					} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException
-							| NoSuchProviderException | IOException e1) {
-						// TODO Auto-generated catch block
-					} catch (InvalidKeySpecException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (GeneralSecurityException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					} catch (Exception ed) {
+						JOptionPane.showMessageDialog(null, "Chữ ký hoặc mã hash sai!", "Lỗi",
+								JOptionPane.ERROR_MESSAGE);
+					} 
 				}
 			}
 		}
